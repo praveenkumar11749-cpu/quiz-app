@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Results{% endblock %}
+{% block content %}
+<h1>Results</h1>
+
+<section class="grid two">
+  <article class="card stat">
+    <h2>Cumulative GPA</h2>
+    <p class="big">{{ '%.2f'|format(results.cgpa) }}</p>
+    <p class="muted">{{ results.credits }} credits completed on a 10-point scale</p>
+  </article>
+  <article class="card">
+    <h2>SGPA trend</h2>
+    <svg viewBox="0 0 {{ 70 * results.semesters|length }} 130" class="chart" role="img"
+         aria-label="SGPA by semester">
+      {% for s in results.semesters %}
+        {% set h = (s.sgpa / 10 * 90)|round(1) %}
+        <rect class="bar" x="{{ loop.index0 * 70 + 12 }}" y="{{ 100 - h }}" width="46" height="{{ h }}" rx="4"/>
+        <text class="bar-label" x="{{ loop.index0 * 70 + 35 }}" y="{{ 94 - h }}" text-anchor="middle">{{ '%.2f'|format(s.sgpa) }}</text>
+        <text class="axis-label" x="{{ loop.index0 * 70 + 35 }}" y="118" text-anchor="middle">Sem {{ s.number }}</text>
+      {% endfor %}
+    </svg>
+  </article>
+</section>
+
+{% for s in results.semesters|reverse %}
+<section class="card">
+  <h2>Semester {{ s.number }} <span class="muted small">published {{ s.published }}</span></h2>
+  <p>SGPA <strong>{{ '%.2f'|format(s.sgpa) }}</strong> · CGPA so far <strong>{{ '%.2f'|format(s.cgpa) }}</strong> · {{ s.credits }} credits</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Code</th><th>Course</th><th class="num">Credits</th><th class="num">Marks</th><th>Grade</th><th class="num">Points</th></tr></thead>
+    <tbody>
+    {% for r in s.rows %}
+      <tr>
+        <td>{{ r.code }}</td>
+        <td>{{ r.title }}</td>
+        <td class="num">{{ r.credits }}</td>
+        <td class="num">{{ r.marks }}</td>
+        <td><span class="tag {{ 'tag-ok' if r.passed else 'tag-low' }}">{{ r.grade }}</span></td>
+        <td class="num">{{ r.points }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endfor %}
+
+<section class="card">
+  <h2>Grading scale</h2>
+  <p class="muted">
+    {% for floor, letter, points in scale %}
+      <span class="tag">{{ letter }}</span> {{ floor }}+ = {{ points }}{{ ' · ' if not loop.last }}
+    {% endfor %}
+  </p>
+</section>
+{% endblock %}

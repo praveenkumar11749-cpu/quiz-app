@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Home{% endblock %} · Student Portal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% if user %}
+<header class="topbar">
+  <a class="brand" href="{{ url_for('dashboard') }}">Student Portal</a>
+  <nav aria-label="Main">
+    {% for endpoint, label in nav_items %}
+      <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} class="active" aria-current="page"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+  <form method="post" action="{{ url_for('logout') }}" class="logout">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-ghost">Sign out ({{ user.name }})</button>
+  </form>
+</header>
+{% endif %}
+
+<main class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash flash-{{ category }}" role="status">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">Student Portal · demo data for the guest account</footer>
+</body>
+</html>

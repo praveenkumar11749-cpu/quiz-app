@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<section class="login-card card">
+  <h1>Student Portal</h1>
+  <p class="muted">Exam schedules, results and your calendar in one place.</p>
+
+  <form method="post" action="{{ url_for('login_guest') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-primary btn-block">Continue as Guest</button>
+  </form>
+
+  <div class="divider"><span>or sign in</span></div>
+
+  <form method="post" action="{{ url_for('login_post') }}" class="stack">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Username
+      <input type="text" name="username" autocomplete="username" required>
+    </label>
+    <label>Password
+      <input type="password" name="password" autocomplete="current-password" required>
+    </label>
+    <button type="submit" class="btn btn-block">Sign in</button>
+  </form>
+  <p class="muted small">Demo account: <code>guest</code> / <code>guest</code></p>
+</section>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Welcome, {{ user.name }}</h1>
+<p class="muted">{{ user.program }} · Semester {{ user.semester }} · Section {{ user.section }} · Roll no. {{ user.roll_no }}</p>
+
+<section class="grid stats">
+  <article class="card stat">
+    <h2>Next exam</h2>
+    {% if next_exam %}
+      <p class="big">{{ next_exam.code }}</p>
+      <p>{{ next_exam.name }}</p>
+      <p class="muted">{{ next_exam.date.strftime('%a, %d %b') }} · {{ next_exam.start.strftime('%H:%M') }} ·
+        {% if next_exam.days_left == 0 %}<strong>today</strong>{% else %}in {{ next_exam.days_left }} day{{ '' if next_exam.days_left == 1 else 's' }}{% endif %}</p>
+    {% else %}
+      <p class="muted">No upcoming exams.</p>
+    {% endif %}
+  </article>
+  <article class="card stat">
+    <h2>CGPA</h2>
+    <p class="big">{{ '%.2f'|format(results.cgpa) }}</p>
+    <p class="muted">after {{ results.semesters|length }} semesters · {{ results.credits }} credits</p>
+  </article>
+  <article class="card stat">
+    <h2>Attendance</h2>
+    <p class="big">{{ attendance.overall }}%</p>
+    <p class="muted"><a href="{{ url_for('attendance') }}">See subject-wise</a></p>
+  </article>
+  <article class="card stat">
+    <h2>Exams left</h2>
+    <p class="big">{{ exams_left }}</p>
+    <p class="muted"><a href="{{ url_for('exams') }}">View schedule</a></p>
+  </article>
+</section>
+
+<section class="grid two">
+  <article class="card">
+    <h2>Coming up (next 14 days)</h2>
+    {% if upcoming_events %}
+    <ul class="list">
+      {% for ev in upcoming_events %}
+      <li>
+        <span class="date-chip">{{ ev.date.strftime('%d %b') }}</span>
+        <span class="tag tag-{{ ev.type }}">{{ ev.type }}</span>
+        {{ ev.title }}{% if ev.time %} <span class="muted">· {{ ev.time }}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="muted">Nothing scheduled.</p>
+    {% endif %}
+    <p><a href="{{ url_for('calendar_view') }}">Open calendar →</a></p>
+  </article>
+
+  <article class="card">
+    <h2>Announcements</h2>
+    <ul class="list">
+      {% for a in announcements %}
+      <li>
+        <strong>{{ a.title }}</strong> <span class="muted small">{{ a.date.strftime('%d %b') }}</span><br>
+        <span class="muted">{{ a.body }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+{% endblock %}

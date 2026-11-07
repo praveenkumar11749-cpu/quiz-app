@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Calendar{% endblock %}
+{% block content %}
+<div class="row-between">
+  <h1>Calendar</h1>
+  <a class="btn" href="{{ url_for('calendar_ics') }}">Download .ics</a>
+</div>
+
+<section class="card">
+  <div class="row-between">
+    <a class="btn btn-ghost" href="{{ url_for('calendar_view', year=prev.year, month=prev.month) }}">← Prev</a>
+    <h2>{{ month_name }} {{ year }}</h2>
+    <a class="btn btn-ghost" href="{{ url_for('calendar_view', year=next.year, month=next.month) }}">Next →</a>
+  </div>
+
+  <div class="cal">
+    {% for wd in weekdays %}<div class="cal-head">{{ wd }}</div>{% endfor %}
+    {% for week in weeks %}{% for day in week %}
+      <div class="cal-day{{ '' if day.in_month else ' out' }}{{ ' today' if day.is_today else '' }}">
+        <span class="cal-num">{{ day.date.day }}</span>
+        {% for ev in day.events %}
+          <span class="cal-ev tag-{{ ev.type }}" title="{{ ev.title }}{{ ' · ' ~ ev.time if ev.time }}">{{ ev.title }}</span>
+        {% endfor %}
+      </div>
+    {% endfor %}{% endfor %}
+  </div>
+  <p class="legend small">
+    <span class="tag tag-exam">exam</span> <span class="tag tag-deadline">deadline</span>
+    <span class="tag tag-event">event</span> <span class="tag tag-holiday">holiday</span>
+    <span class="tag tag-personal">personal</span>
+  </p>
+</section>
+
+<section class="grid two">
+  <article class="card">
+    <h2>Next 30 days</h2>
+    {% if agenda %}
+    <ul class="list">
+      {% for ev in agenda %}
+      <li>
+        <span class="date-chip">{{ ev.date.strftime('%d %b') }}</span>
+        <span class="tag tag-{{ ev.type }}">{{ ev.type }}</span>
+        {{ ev.title }}{% if ev.time %} <span class="muted">· {{ ev.time }}</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="muted">Nothing scheduled.</p>{% endif %}
+  </article>
+
+  <article class="card">
+    <h2>Add a personal event</h2>
+    <form method="post" action="{{ url_for('calendar_add') }}" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Title <input type="text" name="title" maxlength="60" required></label>
+      <label>Date <input type="date" name="date" value="{{ today.isoformat() }}" required></label>
+      <button type="submit" class="btn btn-primary">Add event</button>
+    </form>
+    {% if personal %}
+    <h3>Your events</h3>
+    <ul class="list">
+      {% for ev in personal %}
+      <li>
+        <span class="date-chip">{{ ev.date.strftime('%d %b %Y') }}</span> {{ ev.title }}
+        <form method="post" action="{{ url_for('calendar_delete') }}" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="id" value="{{ ev.id }}">
+          <button type="submit" class="btn btn-ghost small">Remove</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <p class="muted small">Personal events are stored in your browser session only.</p>
+  </article>
+</section>
+{% endblock %}

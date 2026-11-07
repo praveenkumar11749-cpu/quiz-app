@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Suggestions{% endblock %}
+{% block content %}
+<h1>Suggestions</h1>
+
+<section class="card">
+  <h2>Your study plan</h2>
+  <p class="muted">Hours per day are estimated from each course's credits, your mid-term score, how close the exam is and your attendance.</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Exam</th><th>Date</th><th class="num">Days left</th><th class="num">Hours / day</th><th class="num">Total hours</th><th>Priority</th><th>Why</th></tr></thead>
+    <tbody>
+    {% for p in plan %}
+      <tr>
+        <td><strong>{{ p.code }}</strong> {{ p.name }}</td>
+        <td>{{ p.date.strftime('%d %b') }}</td>
+        <td class="num">{{ p.days_left }}</td>
+        <td class="num">{{ p.hours_per_day }}</td>
+        <td class="num">{{ '%g'|format(p.total_hours) }}</td>
+        <td><span class="tag {{ 'tag-low' if p.priority == 'High' else 'tag-ok' }}">{{ p.priority }}</span></td>
+        <td>{{ p.reasons|join('; ') }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7" class="muted">No upcoming end-term exams.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+{% if low_attendance %}
+<section class="card">
+  <h2>Attendance alerts</h2>
+  <ul class="list">
+    {% for r in low_attendance %}
+    <li><strong>{{ r.code }} {{ r.name }}</strong> is at {{ r.pct }}%. Attend the next {{ r.need }} classes in a row, or speak to your faculty about condonation.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="card">
+  <h2>Ideas for the next version</h2>
+  <ul class="list">
+    {% for title, text in roadmap %}
+    <li><strong>{{ title }}</strong> <span class="muted">– {{ text }}</span></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}
